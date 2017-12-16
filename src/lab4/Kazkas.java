@@ -17,7 +17,7 @@ import laborai.studijosktu.KTUable;
  *
  * @author Laptopas
  */
-public class Kazkas implements KTUable<Kazkas> {
+public class Kazkas implements KTUable, Comparable<Kazkas> {
 
     final static private LocalDate curentYearLocalVar = LocalDate.now();
     private double price;

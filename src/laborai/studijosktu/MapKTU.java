@@ -121,6 +121,16 @@ public class MapKTU<K, V> implements MapADTp<K, V> {
     public boolean contains(K key) {
         return get(key) != null;
     }
+    
+    
+    public boolean containsValue(Object value){
+        for (int i = 0; i < table.length; i++) {
+            if (table[i].value.equals(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * Atvaizdis papildomas nauja pora.
@@ -156,7 +166,32 @@ public class MapKTU<K, V> implements MapADTp<K, V> {
 
         return value;
     }
+public V putIfAbsent(K key, V value){
+    if (key == null || value == null) {
+            throw new IllegalArgumentException("Key or value is null in put(Key key, Value value)");
+        }
+        index = hash(key, ht);
+        if (table[index] == null) {
+            chainsCounter++;
+        }
 
+        Node<K, V> node = getInChain(key, table[index]);
+        if (node == null) {
+            table[index] = new Node<>(key, value, table[index]);
+            size++;
+
+            if (size > table.length * loadFactor) {
+                rehash(table[index]);
+            } else {
+                lastUpdatedChain = index;
+            }
+        } else {
+            node.value = value;
+            lastUpdatedChain = index;
+        }
+
+        return value;
+}
     /**
      * Grąžinama atvaizdžio poros reikšmė.
      *

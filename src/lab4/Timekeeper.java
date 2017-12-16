@@ -1,6 +1,6 @@
 package lab4;
 
-import laborai.demo.*;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Semaphore;
 
