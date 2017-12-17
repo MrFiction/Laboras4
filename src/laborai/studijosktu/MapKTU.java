@@ -121,9 +121,8 @@ public class MapKTU<K, V> implements MapADTp<K, V> {
     public boolean contains(K key) {
         return get(key) != null;
     }
-    
-    
-    public boolean containsValue(Object value){
+
+    public boolean containsValue(Object value) {
         for (int i = 0; i < table.length; i++) {
             if (table[i].value.equals(value)) {
                 return true;
@@ -166,32 +165,46 @@ public class MapKTU<K, V> implements MapADTp<K, V> {
 
         return value;
     }
-public V putIfAbsent(K key, V value){
-    if (key == null || value == null) {
-            throw new IllegalArgumentException("Key or value is null in put(Key key, Value value)");
+
+    public V putIfAbsent(K key, V value) {
+        if (key == null || value == null) {
+            throw new IllegalArgumentException("Key or value is null in putIfAbsent(Key key, Value value)");
         }
         index = hash(key, ht);
         if (table[index] == null) {
             chainsCounter++;
-        }
-
-        Node<K, V> node = getInChain(key, table[index]);
-        if (node == null) {
-            table[index] = new Node<>(key, value, table[index]);
-            size++;
-
-            if (size > table.length * loadFactor) {
-                rehash(table[index]);
-            } else {
-                lastUpdatedChain = index;
-            }
+            put(key, value);
+            return null;
         } else {
-            node.value = value;
-            lastUpdatedChain = index;
+            return get(key);
         }
+    }
+    public int averageChainSize(){
+        return size/chainsCounter;
+    }
+    public V replace(K key, V value){
+        if (key == null || value == null) {
+            throw new IllegalArgumentException("Key or value is null in raplace(Key key, Value value)");
+        }
+        index = hash(key, ht);
+        if (table[index] != null) {
+            return put(key, value);
+        } 
+        else {
+            return null;
+        }
+    }
+    public int nunberOfEmpties(){
+        int count = 0;
+        for (int i = 0; i < table.length; i++) {
+            if (table[i] == null) {
+                count++;
+            }
+            
+        }
+        return count;
+    }
 
-        return value;
-}
     /**
      * Grąžinama atvaizdžio poros reikšmė.
      *
