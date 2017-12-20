@@ -45,7 +45,7 @@ public class ValueGenerator {
     static int randomSerialNumber() {
         Random serialNumbGen = new Random();
         int randomSNumber;
-        randomSNumber = serialNumbGen.nextInt(10000);
+        randomSNumber = serialNumbGen.nextInt(100000000);
         return randomSNumber;
 
     }

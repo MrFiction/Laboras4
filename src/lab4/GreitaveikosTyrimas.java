@@ -1,37 +1,38 @@
 package lab4;
 
 import java.util.HashSet;
+import laborai.studijosktu.HashType;
+import laborai.studijosktu.MapKTUx;
 import laborai.gui.MyException;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.ResourceBundle;
-import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.SynchronousQueue;
 
+/**
+ * @author eimutis
+ */
 public class GreitaveikosTyrimas {
 
-    public static final String FINISH_COMMAND = "finish";
+    public static final String FINISH_COMMAND = "finishCommand";
     private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("laborai.gui.messages");
-
-    private static final String[] TYRIMU_VARDAI = {"addTreeSet", "addHashSet", "containsTreeSet", "containsHashSet"};
-    private static final int[] TIRIAMI_KIEKIAI = {10000, 20000, 40000, 80000};
 
     private final BlockingQueue resultsLogger = new SynchronousQueue();
     private final Semaphore semaphore = new Semaphore(-1);
     private final Timekeeper tk;
-    private final String[] errors;
 
-    private final TreeSet<Integer> aSeries = new TreeSet<>();
-    private final HashSet<Integer> aSeries2 = new HashSet<>();
+    private static final String[] TYRIMU_VARDAI = {"removeMapKTUOA", "removeHashSet", "containsMapKTUOA", "containsHashSet"};
+    private final int[] TIRIAMI_KIEKIAI = {10000, 20000, 40000, 80000};
+
+    private MapKTUOA<Integer, Kazkas> aSeries;
+    private final HashSet<Kazkas> aSeries2 = new HashSet<>();
+    private final Queue<String> chainsSizes = new LinkedList<>();
+
     public GreitaveikosTyrimas() {
         semaphore.release();
         tk = new Timekeeper(TIRIAMI_KIEKIAI, resultsLogger, semaphore);
-        errors = new String[]{
-            MESSAGES.getString("error1"),
-            MESSAGES.getString("error2"),
-            MESSAGES.getString("error3"),
-            MESSAGES.getString("error4")
-        };
     }
 
     public void pradetiTyrima() {
@@ -46,48 +47,50 @@ public class GreitaveikosTyrimas {
 
     public void SisteminisTyrimas() throws InterruptedException {
         try {
-            int[] testn = new int[1000];
+            //chainsSizes.add(MESSAGES.getString("msg4"));
+            //chainsSizes.add("   kiekis      " + TYRIMU_VARDAI[0] + "   " + TYRIMU_VARDAI[1]);
             for (int k : TIRIAMI_KIEKIAI) {
-                //Automobilis[] autoMas = AutoGamyba.generuotiIrIsmaisyti(k, 1.0);
-                int[] values = ValueGenerator.generateInt(k);
-                for (int i = 0; i < 1000; i++) {
-                    testn[i] = ValueGenerator.randomSerialNumber();
+                aSeries = new MapKTUOA<>(k);
+                Kazkas[] values = ValueGenerator.generate(k);
+                for (Kazkas a : values) {
+                    aSeries.put(a.getSerialNumber(), a);
                 }
-                aSeries.clear();
-                aSeries2.clear();
+                for (Kazkas a : values) {
+                    aSeries2.add(a);
+                }
+                //aSeries.clear();
+                //aSeries2.clear();
                 tk.startAfterPause();
                 tk.start();
-                for (int a : values) {
-                    aSeries.add(a);
+                for (Kazkas a : values) {
+                    aSeries.remove(a.getSerialNumber());
                 }
                 tk.finish(TYRIMU_VARDAI[0]);
-                for (int a : values) {
-                    aSeries2.add(a);
+                for (Kazkas a : values) {
+                    aSeries2.remove(a);
                 }
                 tk.finish(TYRIMU_VARDAI[1]);
                 //---------------------------
                     
-                for (int i = 0; i < 1000; i++) {
-                    aSeries.contains(testn[i]);
-                    tk.finish(TYRIMU_VARDAI[2]);
+                for (Kazkas a : values) {
+                    aSeries.contains(a.getSerialNumber());
+                    
                 }
-                for (int i = 0; i < 1000; i++) {
-                    aSeries.contains(testn[i]);
-                    tk.finish(TYRIMU_VARDAI[3]);
+                tk.finish(TYRIMU_VARDAI[2]);
+                for (Kazkas a : values) {
+                    aSeries2.contains(a);
+                    
                 }
-               
+                tk.finish(TYRIMU_VARDAI[3]);
                 tk.seriesFinish();
-            
             }
+
+            StringBuilder sb = new StringBuilder();
+            chainsSizes.stream().forEach(p -> sb.append(p).append(System.lineSeparator()));
+            tk.logResult(sb.toString());
             tk.logResult(FINISH_COMMAND);
         } catch (MyException e) {
-            if (e.getCode() >= 0 && e.getCode() <= 3) {
-                tk.logResult(errors[e.getCode()] + ": " + e.getMessage());
-            } else if (e.getCode() == 4) {
-                tk.logResult(MESSAGES.getString("msg3"));
-            } else {
-                tk.logResult(e.getMessage());
-            }
+            tk.logResult(e.getMessage());
         }
     }
 

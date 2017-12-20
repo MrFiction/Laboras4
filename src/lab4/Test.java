@@ -16,104 +16,63 @@ import laborai.studijosktu.*;
  */
 public class Test {
 
-    final static int sampleSize = 10;
-    private ValueGenerator gen = new ValueGenerator();
-    Random rndInt = new Random();
-
-
-    static Kazkas[] set;
-    static SortedSetADTx<Kazkas> aSerija = new BstSetKTUx(new Kazkas(), Kazkas.byPrice);
-
-     static SortedSetADTx<Kazkas> generuotiAibe(int kiekis, int generN) {
-        set = new Kazkas[generN];
-        for (int i = 0; i < generN; i++) {
-            set[i] = ValueGenerator.randomObject();
-        }
-        Collections.shuffle(Arrays.asList(set));
-        aSerija.clear();
-        for (int i = 0; i < kiekis; i++) {
-            aSerija.add(set[i]);
-        }
-        return aSerija;
+    public static void main(String[] args) {
+        Locale.setDefault(Locale.US); // suvienodiname skaičių formatus
+        atvaizdzioTestas();
+        //greitaveikosTestas();
     }
-   
-    
-    public static void Testing() throws CloneNotSupportedException{
+
+    public static void atvaizdzioTestas() {
         Kazkas item1 = new Kazkas(1000.2, ValueGenerator.randomDate(), "1st57275", 20714410);
         Kazkas item2 = ValueGenerator.randomObject();
         Kazkas item3 = ValueGenerator.randomObject();
         Kazkas item4 = ValueGenerator.randomObject();
         Kazkas item5 = ValueGenerator.randomObject();
         Kazkas item6 = ValueGenerator.randomObject();
-        
-        Kazkas[] itemArray = {item1, item2, item3, item4, item5, item6};
-        
-        Ks.oun("Įrašų Aibė:");
-        BstSetKTUx<Kazkas> Set = new BstSetKTUx(new Kazkas());
-        
-        Collections.shuffle(Arrays.asList(itemArray));
 
-        for (Kazkas a : itemArray) {
-            Set.add(a);
-            Ks.oun("Aibė papildoma: " + a + ". Jos dydis: " + Set.size());
+        // Raktų masyvas
+        String[] Id = {"RA4212", "RA4574", "AY31252", "TA17531", "NA74575", "DG523623", "TW34743", "BA61613"};
+        int id = 0;
+        MapKTUx<String, Kazkas> atvaizdis
+                = new MapKTUx(new String(), new Kazkas(), HashType.DIVISION);
+        // Reikšmių masyvas
+        Kazkas[] items = {item1, item2, item3, item4, item5, item6};
+        for (Kazkas a : items) {
+            atvaizdis.put(Id[id++], a);
         }
-        Kazkas record8 = ValueGenerator.randomObject();
-        Set.add(record8);
-        Ks.oun(Set.toVisualizedString(""));
-            SortedSetADTx<Kazkas> autoAibeKopija
-                = (SortedSetADTx<Kazkas>) Set.clone();
-        Ks.oun("Kopija: ");
-        Ks.oun(autoAibeKopija);
-        item5.setPrice(66.66);
-        Ks.oun(autoAibeKopija);
-        Ks.oun(Set);
-     //
-        BstSetKTUx<Kazkas> test = new BstSetKTUx(new Kazkas());
-        test.add(item1);
-        test.add(item5);
-        test.add(ValueGenerator.randomObject());
-        
-        Ks.oun(Set.toVisualizedString(""));
-        Ks.oun(item4);
-
-
-        Ks.oun("floor test: ");
-        Ks.oun(Set.floor(item4));
-        Ks.oun("----------------");
-        Ks.oun(test);
-        Ks.oun(Set);
-
-        Ks.oun("containsAll (f) test: ");
-        Ks.oun(test.containsAll(Set));
-        Ks.oun("----------------");
-       
-        Ks.oun("containsAll (t)test: ");
-        Ks.oun(Set.containsAll(Set));
-        Ks.oun("----------------");
-
-        Ks.oun(Set.toVisualizedString(""));
-        Ks.oun(item5);
-        Ks.oun("----------------");
-        
-        Ks.oun("headset test: ");
-        Ks.oun(Set.headSet(item3, true));
-        
-        Ks.oun("higher test: ");
-        Ks.oun(test.higher(item3));
-        Ks.oun("----------------");
-        
-        Ks.oun("pollLast test: ");
-        Ks.oun(test.pollLast());
-        Ks.oun("----------------");
-
+        atvaizdis.println("Porų išsidėstymas atvaizdyje pagal raktus");
+        Ks.oun("Ar egzistuoja pora atvaizdyje?");
+        Ks.oun(atvaizdis.contains(Id[6]));
+        Ks.oun(atvaizdis.contains(Id[7]));
+        Ks.oun("Pašalinamos poros iš atvaizdžio:");
+        Ks.oun(atvaizdis.remove(Id[1]));
+        Ks.oun(atvaizdis.remove(Id[7]));
+        atvaizdis.println("Porų išsidėstymas atvaizdyje pagal raktus");
+        Ks.oun("Atliekame porų paiešką atvaizdyje:");
+        Ks.oun(atvaizdis.get(Id[2]));
+        Ks.oun(atvaizdis.get(Id[7]));
+        Ks.oun("Išspausdiname atvaizdžio poras String eilute:");
+        Ks.ounn(atvaizdis);
     }
-    
-  
 
-     public static void main(String[] args) throws CloneNotSupportedException{
-        Locale.setDefault(Locale.US);
-        Testing();
-        
+    //Konsoliniame režime
+    private static void greitaveikosTestas() {
+        System.out.println("Greitaveikos tyrimas:\n");
+        GreitaveikosTyrimas gt = new GreitaveikosTyrimas();
+        //Šioje gijoje atliekamas greitaveikos tyrimas
+        new Thread(() -> gt.pradetiTyrima(),
+                "Greitaveikos_tyrimo_gija").start();
+        try {
+            String result;
+            while (!(result = gt.getResultsLogger().take())
+                    .equals(GreitaveikosTyrimas.FINISH_COMMAND)) {
+                System.out.println(result);
+                gt.getSemaphore().release();
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        gt.getSemaphore().release();
     }
 
 }
